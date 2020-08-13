@@ -1,6 +1,7 @@
 package com.github.fgsantana.peoplemapi.controller;
 
 import com.github.fgsantana.peoplemapi.dto.PersonDTO;
+import com.github.fgsantana.peoplemapi.dto.ResponseMessage;
 import com.github.fgsantana.peoplemapi.entity.Person;
 import com.github.fgsantana.peoplemapi.repository.PersonRepository;
 import com.github.fgsantana.peoplemapi.service.PersonService;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.List;
 
 
 @RestController
@@ -23,18 +25,18 @@ public class PeopleResource {
 
 
     @GetMapping
-    public ResponseEntity all(){
+    public ResponseEntity<List<PersonDTO>> all() {
         return service.getAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity getById(@PathVariable("id") Long id){
+    public ResponseEntity<Person> getById(@PathVariable("id") Long id) {
         return service.getOne(id);
 
     }
 
     @PostMapping
-    public ResponseEntity createPerson(@RequestBody @Valid PersonDTO personDTO){
+    public ResponseEntity<ResponseMessage> createPerson(@RequestBody @Valid PersonDTO personDTO) {
         return service.createPerson(personDTO);
 
     }
