@@ -3,6 +3,8 @@ package com.github.fgsantana.peoplemapi.controller;
 import com.github.fgsantana.peoplemapi.dto.PersonDTO;
 import com.github.fgsantana.peoplemapi.dto.ResponseMessage;
 import com.github.fgsantana.peoplemapi.entity.Person;
+import com.github.fgsantana.peoplemapi.exception.CPFConstraintViolationException;
+import com.github.fgsantana.peoplemapi.exception.PersonNotFoundException;
 import com.github.fgsantana.peoplemapi.repository.PersonRepository;
 import com.github.fgsantana.peoplemapi.service.PersonService;
 import lombok.Getter;
@@ -25,20 +27,23 @@ public class PeopleResource {
 
 
     @GetMapping
-    public ResponseEntity<List<PersonDTO>> all() {
+    public List<PersonDTO> all() {
         return service.getAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Person> getById(@PathVariable("id") Long id) {
-        return service.getOne(id);
+    public PersonDTO getById(@PathVariable("id") Long id) throws PersonNotFoundException {
+        return service.getById(id);
 
     }
 
     @PostMapping
-    public ResponseEntity<ResponseMessage> createPerson(@RequestBody @Valid PersonDTO personDTO) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseMessage createPerson(@RequestBody @Valid PersonDTO personDTO) throws CPFConstraintViolationException {
         return service.createPerson(personDTO);
 
     }
+
+
 
 }

@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fgsantana.peoplemapi.dto.PersonDTO;
 import com.github.fgsantana.peoplemapi.dto.ResponseMessage;
 import com.github.fgsantana.peoplemapi.entity.Person;
+import com.github.fgsantana.peoplemapi.exception.CPFConstraintViolationException;
+import com.github.fgsantana.peoplemapi.exception.PersonNotFoundException;
 import com.github.fgsantana.peoplemapi.mapper.PersonMapper;
 import com.github.fgsantana.peoplemapi.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -28,31 +31,27 @@ public class PersonService {
 
     @Autowired
     PersonRepository repo;
-    SimpleDateFormat a = new SimpleDateFormat("dd-MM-yyyy");
 
 
-    public ResponseEntity<ResponseMessage> createPerson(PersonDTO personDTO) {
-        ResponseMessage message = new ResponseMessage();
+    public  ResponseMessage createPerson(PersonDTO personDTO) throws CPFConstraintViolationException {
         Person person = personMapper.toModel(personDTO);
-
         try {
-            return ResponseEntity.status(HttpStatus.CREATED).body((message.builder()
-                    .message("Person with ID " + repo.save(person).getId()+ " created").build()));
+
+            return ResponseMessage.builder().message("Person with ID " + repo.save(person).getId() + " created").build();
         } catch (DataIntegrityViolationException e) {
-            return ResponseEntity.badRequest().body(message.builder().message("Usuário com CPF " + person.getCpf() + " já existente").build());
-
+            throw new CPFConstraintViolationException(personDTO.getCpf());
         }
-
-
     }
 
-    public ResponseEntity<List<PersonDTO>> getAll() {
-        return ResponseEntity.ok().body(repo.findAll().stream().map(person -> personMapper.toDTO(person)).collect(Collectors.toList()));
+
+
+    public List<PersonDTO> getAll() {
+        return repo.findAll().stream().map(person -> personMapper.toDTO(person)).collect(Collectors.toList());
     }
 
-    public ResponseEntity<Person> getOne(Long id) {
-        Optional<Person> op = repo.findById(id);
-        return op.isPresent() ? ResponseEntity.ok().body(op.get()) : ResponseEntity.notFound().build();
+    public PersonDTO getById(Long id) throws PersonNotFoundException {
+        Person person = repo.findById(id).orElseThrow(() -> new PersonNotFoundException(id));
+        return personMapper.toDTO(person);
 
 
     }
