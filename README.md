@@ -1,2 +1,2 @@
 # peoplem-api
-API para gerenciamento de pessoas com banco de dados H2(in-memory databases)
+An API to People Management using H2(in-memory database)
