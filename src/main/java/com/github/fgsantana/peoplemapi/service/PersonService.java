@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -33,7 +34,18 @@ public class PersonService {
     PersonRepository repo;
 
 
-    public  ResponseMessage createPerson(PersonDTO personDTO) throws CPFConstraintViolationException {
+    public List<PersonDTO> findAll() {
+        return repo.findAll().stream().map(person -> personMapper.toDTO(person)).collect(Collectors.toList());
+    }
+
+    public PersonDTO findById(Long id) throws PersonNotFoundException {
+        Person person = repo.findById(id).orElseThrow(() -> new PersonNotFoundException(id));
+        return personMapper.toDTO(person);
+
+
+    }
+
+    public ResponseMessage createPerson(PersonDTO personDTO) throws CPFConstraintViolationException {
         Person person = personMapper.toModel(personDTO);
         try {
 
@@ -45,14 +57,28 @@ public class PersonService {
 
 
 
-    public List<PersonDTO> getAll() {
-        return repo.findAll().stream().map(person -> personMapper.toDTO(person)).collect(Collectors.toList());
+    public PersonDTO updateById(Long id, PersonDTO personDTO) throws PersonNotFoundException, CPFConstraintViolationException {
+        verifyIfExists(id);
+
+        try {
+            personDTO.setId(id);
+            Person person = repo.save(personMapper.toModel(personDTO));
+            return personMapper.toDTO(person);
+        } catch (DataIntegrityViolationException e) {
+            throw new CPFConstraintViolationException(personDTO.getCpf());
+        }
     }
 
-    public PersonDTO getById(Long id) throws PersonNotFoundException {
-        Person person = repo.findById(id).orElseThrow(() -> new PersonNotFoundException(id));
-        return personMapper.toDTO(person);
+    public void deleteById(Long id) throws PersonNotFoundException {
+        verifyIfExists(id);
 
+        repo.deleteById(id);
 
+    }
+
+    private void verifyIfExists(Long id) throws PersonNotFoundException {
+        if (!(repo.existsById(id))) {
+            throw new PersonNotFoundException(id);
+        }
     }
 }

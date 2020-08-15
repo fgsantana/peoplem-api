@@ -27,13 +27,13 @@ public class PeopleResource {
 
 
     @GetMapping
-    public List<PersonDTO> all() {
-        return service.getAll();
+    public List<PersonDTO> findAll() {
+        return service.findAll();
     }
 
     @GetMapping("/{id}")
-    public PersonDTO getById(@PathVariable("id") Long id) throws PersonNotFoundException {
-        return service.getById(id);
+    public PersonDTO findById(@PathVariable("id") Long id) throws PersonNotFoundException {
+        return service.findById(id);
 
     }
 
@@ -44,6 +44,17 @@ public class PeopleResource {
 
     }
 
+    @PutMapping("/{id}")
+    public PersonDTO updateById(@PathVariable("id") Long id, @RequestBody @Valid PersonDTO personDTO) throws PersonNotFoundException, CPFConstraintViolationException{
+        return service.updateById(id,personDTO);
+    }
+
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteById(@PathVariable("id") Long id) throws PersonNotFoundException {
+       service.deleteById(id);
+    }
 
 
 }
