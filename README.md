@@ -1,5 +1,5 @@
 # peoplem-api
-##An API to People Management 
+## An API to People Management 
 
 #
 - Java 11
