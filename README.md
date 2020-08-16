@@ -1,5 +1,6 @@
 # peoplem-api
 ## An API to People Management 
+### This API REST has endpoints to Create, Remove, Update and Delete. It manipulates data in the H2 Database(the entities are Person and Phone).
 
 #
 - Java 11
